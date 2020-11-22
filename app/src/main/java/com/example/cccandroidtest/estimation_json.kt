@@ -1,6 +1,8 @@
 package com.example.cccandroidtest
 
 import androidx.room.*
+import io.reactivex.rxjava3.core.Flowable
+
 
 @Entity(tableName = "estimate_tbl")
 data class Estimate(
@@ -21,23 +23,35 @@ data class Person(
     @ColumnInfo(name = "last_name") var last_name: String?,
     @ColumnInfo(name = "email") var email: String?,
     @ColumnInfo(name = "phone_number") var phone_number: String?
+
 )
-@Database(entities = arrayOf( Estimate::class), version = 1)
+@Database(entities = arrayOf( Estimate::class, Person::class), version = 2)
+@TypeConverters()
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun estemateDao(): EstemateDao
+
+    abstract fun estimateDao(): EstimateDao
+    abstract fun personDao(): PersonDao
 }
 
 @Dao
-interface EstemateDao{
+interface EstimateDao{
     @Insert
     fun insertAll(vararg estimate: Estimate)
-    @Query("SELECT * FROM estimate_tbl WHERE id IN (:id)")
-    fun loadEstemateByIds(id: String): Estimate
+    @Query("SELECT * FROM estimate_tbl")
+    fun loadEstimates(): Estimate
 
     @Query("SELECT * FROM estimate_tbl WHERE created_by LIKE :created AND " +
             "requested_by LIKE :requested" )
     fun findByName(created: String, requested: String): Estimate
 
 }
+@Dao
+interface PersonDao{
+    @Insert
+    fun insertAllPersons(vararg person: Person)
+    @Query("SELECT * FROM person_tbl")
+    fun loadPersons(): Person
+}
+
 
 
